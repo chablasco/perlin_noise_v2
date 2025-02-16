@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CB Perlin Noise v2</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script>
+    let scl = 100;       // Scale of each cell in the grid
+    let zoff = 0;        // z-offset for Perlin noise
+    const increment = 0.1; // Increment for Perlin noise
+
+    function setup() {
+      pixelDensity(1); // Optimize for performance on high-DPI displays
+      createCanvas(windowWidth, windowHeight);
+      noStroke();
+    }
+
+    function draw() {
+      loadPixels(); // Access the pixel array directly
+      const inc = increment / scl; // Precompute increment value
+      let index = 0;  // Counter for pixel array
+      let yoff = 0;   // Perlin noise y-offset
+
+      for (let y = 0; y < height; y++) {
+        let xoff = 0; // Perlin noise x-offset for each row
+        for (let x = 0; x < width; x++) {
+          // Get the noise value, scaled to 0-255
+          const noiseVal = noise(xoff, yoff, zoff) * 255;
+          // Directly assign the computed RGB values
+          pixels[index]     = noiseVal;         // Red channel
+          pixels[index + 1] = 100;              // Green channel
+          pixels[index + 2] = 255 - noiseVal;     // Blue channel
+          pixels[index + 3] = 255;              // Alpha channel
+
+          index += 4;     // Move to the next pixel
+          xoff += inc;    // Increment x-offset for noise
+        }
+        yoff += inc;      // Increment y-offset for noise
+      }
+
+      updatePixels(); // Update the canvas with the new pixel array
+      zoff += 0.01;   // Animate by moving through the noise space
+    }
+
+    function keyPressed() {
+      if (key === 'r' || key === 'R') {
+        zoff = random(1000); // Reset the pattern
+      } else if (key === '+') {
+        scl = constrain(scl + 5, 5, 100); // Increase scale
+      } else if (key === '-') {
+        scl = constrain(scl - 5, 5, 100); // Decrease scale
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+</body>
+</html>
